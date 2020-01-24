@@ -1,0 +1,20 @@
+.paddle {
+  width: 25px;
+  height: 100px;
+  background-color: rebeccapurple;
+  border-radius: 4px;
+
+  /* Positioning */
+  position: absolute;
+  left: 20px;
+  /* top: 50%;
+  transform: translateY(-50%); */
+}
+
+.player2 {
+  background-color: salmon;
+
+  /* Positioning */
+  left: auto;
+  right: 20px;
+}

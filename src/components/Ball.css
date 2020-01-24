@@ -1,0 +1,9 @@
+.ball {
+    border-radius: 50%;
+    background-color: gray;
+    height: 20px;
+    width: 20px;
+
+    /* Positioning */
+    position: absolute;
+}
