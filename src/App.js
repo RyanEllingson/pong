@@ -5,11 +5,17 @@ import Ball from "./components/Ball";
 
 
 const initialState = {
-  paddle1: {
+  paddle1y: {
     y: 200
   },
-  paddle2: {
+  paddle1dy: {
+    dy: 0
+  },
+  paddle2y: {
     y: 200
+  },
+  paddle2dy: {
+    dy: 0
   },
   ball: {
     x: 200,
@@ -23,9 +29,13 @@ const initialState = {
 function reducer (state, action) {
   switch (action.type) {
     case "MOVE_PADDLE1":
-      return { ...state, paddle1: action.payload }
+      return { ...state, paddle1y: action.payload }
     case "MOVE_PADDLE2":
-      return { ...state, paddle2: action.payload }
+      return { ...state, paddle2y: action.payload }
+    case "PADDLE1_SPEED":
+      return { ...state, paddle1dy: action.payload }
+    case "PADDLE2_SPEED":
+      return { ...state, paddle2dy: action.payload }
     case "MOVE_BALL":
       return { ...state, ball: action.payload }
     default:
@@ -41,35 +51,43 @@ export default function App() {
   function handleKeyP1({key}) {
     const char = key.toLowerCase();
     if (char === "w" || char === "s") {
-      let boundedY = (state.paddle1.y + (char === "w" ? -5 : 5));
-      if (boundedY < 0) {
-        boundedY = 0;
-      } else if (boundedY > 400) {
-        boundedY = 400;
-      }
-      dispatch({type: "MOVE_PADDLE1", payload: {y: boundedY}});
+      const newDy = (char === "w" ? -5 : 5);
+      dispatch({type: "PADDLE1_SPEED", payload: {dy: newDy}});
+    }
+  }
+
+  function releaseKeyP1({key}) {
+    const char = key.toLowerCase();
+    if (char === "w" || char === "s") {
+      dispatch({type: "PADDLE1_SPEED", payload: {dy: 0}});
     }
   }
 
   function handleKeyP2({key}) {
     const char = key.toLowerCase();
     if (char === "o" || char === "l") {
-      let boundedY = (state.paddle2.y + (char === "o" ? -5 : 5));
-      if (boundedY < 0) {
-        boundedY = 0;
-      } else if (boundedY > 400) {
-        boundedY = 400;
-      }
-      dispatch({type: "MOVE_PADDLE2", payload: {y: boundedY}});
+      const newDy = (char === "o" ? -5 : 5);
+      dispatch({type: "PADDLE2_SPEED", payload: {dy: newDy}});
+    }
+  }
+
+  function releaseKeyP2({key}) {
+    const char = key.toLowerCase();
+    if (char === "o" || char === "l") {
+      dispatch({type: "PADDLE2_SPEED", payload: {dy: 0}});
     }
   }
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyP1);
+    window.addEventListener("keyup", releaseKeyP1);
     window.addEventListener("keydown", handleKeyP2);
+    window.addEventListener("keyup", releaseKeyP2);
     return () => {
       window.removeEventListener("keydown", handleKeyP1);
+      window.removeEventListener("keyup", releaseKeyP1);
       window.removeEventListener("keydown", handleKeyP2);
+      window.removeEventListener("keyup", releaseKeyP2);
     }
   }, [state]);
 
@@ -80,8 +98,8 @@ export default function App() {
       let dx = state.ball.dx;
       let dy = state.ball.dy;
 
-      let paddle1Y = state.paddle1.y;
-      let paddle2Y = state.paddle2.y;
+      let paddle1Y = state.paddle1y.y;
+      let paddle2Y = state.paddle2y.y;
 
       if (x < 5 || x > 700) {
         return dispatch({
@@ -103,11 +121,11 @@ export default function App() {
       }
 
       if ((paddle1Y < y+dy && paddle1Y + 100 > y+dy) && x < 45) {
-        dx = -dx;
+        dx = -dx+2;
       }
 
       if ((paddle2Y < y+dy && paddle2Y + 100 > y+dy) && x > 685) {
-        dx = -dx;
+        dx = -(dx+2);
       }
 
       dispatch({
@@ -118,15 +136,44 @@ export default function App() {
           x: x + dx,
           y: y + dy
         }
-      })
+      });
+
+      
+
     }, 25);
     return () => clearTimeout(myTimeout);
-}, [state.ball]);
+  }, [state.ball]);
+
+  useEffect(() => {
+    const myTimeout = setTimeout(() => {
+      let paddle1Y = state.paddle1y.y;
+      let paddle2Y = state.paddle2y.y;
+      let paddle1dy = state.paddle1dy.dy;
+      let paddle2dy = state.paddle2dy.dy;
+
+      let boundedY1 = paddle1Y + paddle1dy;
+      if (boundedY1 < 0) {
+        boundedY1 = 0;
+      } else if (boundedY1 > 400) {
+        boundedY1 = 400; 
+      }
+      dispatch({type: "MOVE_PADDLE1", payload: {y: boundedY1}});
+
+      let boundedY2 = paddle2Y + paddle2dy;
+      if (boundedY2 < 0) {
+        boundedY2 = 0;
+      } else if (boundedY2 > 400) {
+        boundedY2 = 400; 
+      }
+      dispatch({type: "MOVE_PADDLE2", payload: {y: boundedY2}});
+    }, 10)
+    return () => clearTimeout(myTimeout);
+  }, [state]);
 
   return (
     <div className="container">
-      <Paddle paddleY={state.paddle1.y}/>
-      <Paddle isPlayerTwo paddleY={state.paddle2.y}/>
+      <Paddle paddleY={state.paddle1y.y}/>
+      <Paddle isPlayerTwo paddleY={state.paddle2y.y}/>
       <Ball pos={state.ball}/>
     </div>
   );
