@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import "./Ball.css";
 
 export default function Ball({pos}) {

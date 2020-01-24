@@ -6,13 +6,13 @@ import Ball from "./components/Ball";
 
 const initialState = {
   paddle1: {
-    y: 0
+    y: 200
   },
   paddle2: {
-    y: 0
+    y: 200
   },
   ball: {
-    x: 0,
+    x: 200,
     y: 0,
     dx: 5,
     dy: 5
@@ -75,21 +75,48 @@ export default function App() {
 
   useEffect(() => {
     const myTimeout = setTimeout(() => {
+      let x = state.ball.x;
+      let y = state.ball.y;
       let dx = state.ball.dx;
       let dy = state.ball.dy;
-      if (state.ball.x + state.ball.dx > 750 - 20 || state.ball.x + state.ball.dx < 0) {
+
+      let paddle1Y = state.paddle1.y;
+      let paddle2Y = state.paddle2.y;
+
+      if (x < 5 || x > 700) {
+        return dispatch({
+          type: "MOVE_BALL",
+          payload: {
+            dx: 5,
+            dy: 5,
+            x: 200,
+            y: 0
+          }
+        });
+      }
+
+      if (x + dx > 750 - 20 || x + dx < 0) {
         dx = -dx;
       }
-      if (state.ball.y + state.ball.dy > 500 - 20 || state.ball.y + state.ball.dy < 0) {
+      if (y + dy > 500 - 20 || y + dy < 0) {
         dy = -dy;
       }
+
+      if ((paddle1Y < y+dy && paddle1Y + 100 > y+dy) && x < 45) {
+        dx = -dx;
+      }
+
+      if ((paddle2Y < y+dy && paddle2Y + 100 > y+dy) && x > 685) {
+        dx = -dx;
+      }
+
       dispatch({
         type: "MOVE_BALL",
         payload: {
           dx,
           dy,
-          x: state.ball.x + state.ball.dx,
-          y: state.ball.y + state.ball.dy
+          x: x + dx,
+          y: y + dy
         }
       })
     }, 25);
