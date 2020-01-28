@@ -2,8 +2,27 @@ import React, {useEffect, useReducer } from "react";
 import "./App.css";
 import Paddle from "./components/Paddle";
 import Ball from "./components/Ball";
-import Brick from "./components/Brick";
+import Obstacle from "./components/Obstacle";
+import {level_one} from "./levels";
 
+const obstacles = level_one.reduce((acc, cur, y) => {
+  const blocks = cur.split("").reduce((bs, b, x) => {
+    if (b === " ") {
+      return [...bs];
+    }
+    return [
+      ...bs,
+      {
+        type: b,
+        x: x * 10,
+        y: y * 10,
+        width: 10,
+        height: 10
+      }
+    ];
+  }, []);
+  return [...acc, ...blocks];
+}, []);
 
 const initialState = {
   paddle1y: {
@@ -24,17 +43,7 @@ const initialState = {
     dx: 5,
     dy: 5
   },
-  bricks: [
-    {
-      top: 0, left: 300
-    },
-    { 
-      top: 200, left: 400
-    },
-    {
-      top: 390, left: 550
-    }
-  ]
+  obstacles
 };
 
 
@@ -220,42 +229,69 @@ export default function App() {
       //   dx = -(dx+2);
       // }
       
-      const wallCollisions = walls.map(wall => {
-        return willCollide(ball, wall);
-      });
+      // const wallCollisions = walls.map(wall => {
+      //   return willCollide(ball, wall);
+      // });
 
-      if (wallCollisions[0].collided || wallCollisions[1].collided) {
-        dx = -dx;
-      }
+      // if (wallCollisions[0].collided || wallCollisions[1].collided) {
+      //   dx = -dx;
+      // }
 
-      if (wallCollisions[2].collided || wallCollisions[3].collided) {
-        dy = -dy;
-      }
+      // if (wallCollisions[2].collided || wallCollisions[3].collided) {
+      //   dy = -dy;
+      // }
 
-      const obstacleCols = [
+      // const obstacleCols = [
+      //   {
+      //     left: 20,
+      //     top: paddle1Y
+      //   },
+      //   {
+      //     left: 705,
+      //     top: paddle2Y
+      //   },
+      //   ...state.obstacles
+      // ].map(ob => {
+      //   return willCollide(ball, {
+      //     width: 25,
+      //     height: 100,
+      //     x: ob.left,
+      //     y: ob.top
+      //   });
+      // });
+
+      // if (obstacleCols.some(obc => obc.y)) {
+      //   dy = -dy;
+      // }
+      // if (obstacleCols.some(obc => obc.x)) {
+      //   dx = -dx;
+      // }
+
+      const collisions = [
+        ...walls,
+        ...state.obstacles,
         {
-          left: 20,
-          top: paddle1Y
-        },
-        {
-          left: 705,
-          top: paddle2Y
-        },
-        ...state.bricks
-      ].map(ob => {
-        return willCollide(ball, {
-          width: 25,
+          y: paddle1Y,
+          x: 20,
           height: 100,
-          x: ob.left,
-          y: ob.top
-        });
+          width: 25
+        },
+        {
+          y: paddle2Y,
+          x: 705,
+          height: 100,
+          width: 25
+        }
+      ].map(ob => {
+        return willCollide(ball, ob);
       });
 
-      if (obstacleCols.some(obc => obc.y)) {
-        dy = -dy;
-      }
-      if (obstacleCols.some(obc => obc.x)) {
+      if (collisions.some(c => c.x)) {
         dx = -dx;
+      }
+
+      if (collisions.some(c => c.y)) {
+        dy = -dy;
       }
 
       dispatch({
@@ -300,13 +336,13 @@ export default function App() {
     return () => clearTimeout(myTimeout);
   }, [state]);
 
-  const brickList = state.bricks.map((brickObj) => 
-    <Brick style={{top: brickObj.top, left: brickObj.left}}/>
-  )
+  
 
   return (
     <div className="container">
-      {brickList}
+      {state.obstacles.map(({ type, ...style }) => (
+        <Obstacle type={type} style={style} />
+      ))}
       <Paddle paddleY={state.paddle1y.y}/>
       <Paddle isPlayerTwo paddleY={state.paddle2y.y}/>
       <Ball pos={state.ball}/>
