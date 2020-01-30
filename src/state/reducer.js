@@ -3,7 +3,8 @@ import {
     MOVE_PADDLE2,
     PADDLE1_SPEED,
     PADDLE2_SPEED,
-    MOVE_BALL
+    MOVE_BALL,
+    ADJUST_LIVES
 } from "./actions";
 
 export default function reducer (state, action) {
@@ -18,6 +19,8 @@ export default function reducer (state, action) {
         return { ...state, paddle2dy: action.payload }
       case MOVE_BALL:
         return { ...state, ball: action.payload }
+      case ADJUST_LIVES:
+        return { ...state, lives: state.lives + action.payload }
       default:
         throw new Error();
     }

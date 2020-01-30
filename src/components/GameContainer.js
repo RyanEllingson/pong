@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import Paddle from "./Paddle";
 import Ball from "./Ball";
 import Obstacle from "./Obstacle";
+import Lives from "./Lives";
 import { GameContext } from "../state/context";
 
 export default function GameContainer() {
@@ -14,5 +15,6 @@ export default function GameContainer() {
         <Paddle paddleY={state.paddle1y.y}/>
         <Paddle isPlayerTwo paddleY={state.paddle2y.y}/>
         <Ball pos={state.ball}/>
+        <Lives/>
       </div>);
 }

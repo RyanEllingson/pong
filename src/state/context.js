@@ -9,6 +9,7 @@ export const GameContext = React.createContext();
 export default function GameProvider(props) {
 
     const initialState = {
+        lives: 3,
         paddle1y: {
           y: 200
         },
@@ -177,6 +178,21 @@ export default function GameProvider(props) {
 
       if (collisions.some(c => c.y)) {
         dy = -dy;
+      }
+
+      if (collisions[0].x || collisions[1].x) {
+          dispatch({
+              type: "ADJUST_LIVES",
+              payload: -1
+          });
+      }
+
+      if (state.lives < 1) {
+          alert("Game Over - Play Again!");
+          dispatch({
+              type: "ADJUST_LIVES",
+              payload: 3
+          });
       }
 
       dispatch({
